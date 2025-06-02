@@ -7,7 +7,7 @@ A Python library for creating GitHub issues programmatically using the GitHub RE
 First, install the library via pip (if it's not already installed):
 
 ```Python
-pip install issue_creator
+pip install issue-creator
 ```
 
 ## 📚 Usage
