@@ -1,1 +1,70 @@
-# issue_creator
+# Issue Creator
+
+A Python library for creating GitHub issues programmatically using the GitHub REST API.
+
+## 🚀 Installation
+
+First, install the library via pip (if it's not already installed):
+
+`pip install issue_creator`
+
+## 📚 Usage
+
+### 1️⃣ Import the necessary modules
+
+```Python
+from issue_creator import IssueCreator
+from issue_creator.models.issue import Issue
+```
+
+### 2️⃣ Initialize IssueCreator
+
+You'll need a GitHub Personal Access Token (PAT), the repository owner's username, and the repository name.
+
+```Python
+token = "your_github_token"
+repo_owner = "your_github_username"
+repo_name = "your_repository_name"
+
+creator = IssueCreator(token=token, repo_owner=repo_owner, repo_name=repo_name)
+```
+
+### 3️⃣ Create an Issue object
+
+The `Issue` model should contain the issue details such as title, body, assignees, labels, etc.
+
+```Python
+issue = Issue(
+    title="Sample Issue Title",
+    body="This is the description of the issue.",
+    assignees=["octocat"],  # Optional: list of GitHub usernames to assign
+    labels=["bug", "help wanted"]  # Optional: list of labels
+)
+```
+
+### 4️⃣ Create the issue on GitHub
+
+Call the `create` method to post the issue.
+
+```Python
+try:
+    creator.create(issue)
+except IssueCreationError as e:
+    print(f"Failed to create issue: {e.message}")
+    if e.status_code:
+        print(f"Status Code: {e.status_code}")
+        print(f"Response: {e.response_text}")
+```
+
+If successful, it will print:
+
+`Issue created successfully! URL: https://github.com/your_github_username/your_repository_name/issues/123`
+
+## ⚠️ Exceptions
+
+- `IssueCreationError`: Raised if the issue creation fails due to an HTTP error or a request exception.
+
+## 🛠 Configuration Notes
+
+- Make sure your GitHub token has the correct permissions to create issues in the repository.
+- The `Issue` model should be defined based on the GitHub API's expected fields (check the library's `models/issue.py` for the schema).
