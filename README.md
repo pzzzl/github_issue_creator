@@ -13,8 +13,7 @@ First, install the library via pip (if it's not already installed):
 ### 1️⃣ Import the necessary modules
 
 ```Python
-from issue_creator import IssueCreator
-from issue_creator.models.issue import Issue
+from issue_creator import IssueCreator, Issue, IssueCreationError
 ```
 
 ### 2️⃣ Initialize IssueCreator
@@ -50,7 +49,7 @@ Call the `create` method to post the issue.
 try:
     creator.create(issue)
 except IssueCreationError as e:
-    print(f"Failed to create issue: {e.message}")
+    print(f"Failed to create issue: {e}")
     if e.status_code:
         print(f"Status Code: {e.status_code}")
         print(f"Response: {e.response_text}")
