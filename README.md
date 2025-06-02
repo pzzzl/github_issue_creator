@@ -25,7 +25,7 @@ token = "your_github_token"
 repo_owner = "your_github_username"
 repo_name = "your_repository_name"
 
-creator = IssueCreator(token=token, repo_owner=repo_owner, repo_name=repo_name)
+creator = IssueCreator(token, repo_owner, repo_name)
 ```
 
 ### 3️⃣ Create an Issue object
