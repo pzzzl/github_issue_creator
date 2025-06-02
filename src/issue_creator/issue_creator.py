@@ -4,6 +4,7 @@ import requests
 
 from issue_creator.exceptions import IssueCreationError
 from issue_creator.models.issue import Issue
+from issue_creator.models.issue_response import IssueResponse
 
 
 class IssueCreator:
@@ -33,12 +34,15 @@ class IssueCreator:
             {"Authorization": f"token {self._token}", "Accept": "application/vnd.github.v3+json"}
         )
 
-    def create(self, issue: Issue, timeout: int = 10) -> None:
-        """Creates a new GitHub issue.
+    def create(self, issue: Issue, timeout: int = 10) -> IssueResponse:
+        """Creates a new GitHub issue and returns useful information.
 
         Args:
             issue (Issue): An Issue object containing the issue details.
             timeout (int): Timeout for the HTTP request in seconds.
+
+        Returns:
+            IssueResponse: Information about the created issue.
 
         Raises:
             IssueCreationError: If the issue creation fails.
@@ -63,4 +67,15 @@ class IssueCreator:
                 message="Failed to create issue.", status_code=response.status_code, response_text=response.text
             )
 
-        print(f"Issue created successfully! URL: {response.json()['html_url']}")
+        response_data = response.json()
+
+        return IssueResponse(
+            repository_url=f"https://github.com/{self._repo_owner}/{self._repo_name}",
+            issue_url=response_data.get("html_url"),
+            issue_id=response_data.get("id"),
+            issue_number=response_data.get("number"),
+            issue_title=response_data.get("title"),
+            issue_state=response_data.get("state"),
+            created_at=response_data.get("created_at"),
+            author=response_data.get("user", {}).get("login"),
+        )

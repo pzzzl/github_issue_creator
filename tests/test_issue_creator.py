@@ -9,28 +9,47 @@ from src.issue_creator import Issue, IssueCreationError, IssueCreator
 
 
 def test_create_issue_success() -> None:
-    """Test that the IssueCreator creates an issue successfully.
+    """Test successful creation of an issue.
 
-    Mocks a 201 Created response from the GitHub API and checks that
-    the POST request is made exactly once.
+    This test verifies that when a valid Issue object is passed to the IssueCreator,
+    and a mock 201 response is returned from the GitHub API, the IssueCreator.create()
+    method returns an IssueResponse object with the correct data.
     """
     issue = Issue(title="Test", body="This is a test")
     creator = IssueCreator("fake_token", "fake_owner", "fake_repo")
 
     mock_response = MagicMock()
     mock_response.status_code = 201
-    mock_response.json.return_value = {"html_url": "https://github.com/fake_owner/fake_repo/issues/1"}
+    mock_response.json.return_value = {
+        "id": 123456,
+        "number": 1,
+        "title": "Test",
+        "state": "open",
+        "created_at": "2024-06-01T00:00:00Z",
+        "html_url": "https://github.com/fake_owner/fake_repo/issues/1",
+        "user": {"login": "test_user"},
+    }
 
     with patch.object(creator._session, "post", return_value=mock_response) as mock_post:
-        creator.create(issue)
+        result = creator.create(issue)
+
         mock_post.assert_called_once()
+        assert result.__class__.__name__ == "IssueResponse"
+        assert result.__class__.__module__ == "issue_creator.models.issue_response"
+        assert result.issue_url == "https://github.com/fake_owner/fake_repo/issues/1"
+        assert result.issue_id == 123456
+        assert result.issue_title == "Test"
+        assert result.issue_state == "open"
+        assert result.author == "test_user"
+        assert result.repository_url == "https://github.com/fake_owner/fake_repo"
 
 
 def test_create_issue_http_error() -> None:
-    """Test that IssueCreator raises an IssueCreationError when an HTTP error occurs.
+    """Test HTTP error handling during issue creation.
 
-    Simulates a 400 Bad Request response and checks that the correct error is raised,
-    including status code and response text.
+    This test simulates a scenario where the GitHub API returns an HTTP error (400 status).
+    It verifies that the IssueCreator.create() method raises an IssueCreationError with
+    the correct error message, status code, and response text.
     """
     issue = Issue(title="Test", body="This is a test")
     creator = IssueCreator("fake_token", "fake_owner", "fake_repo")
@@ -49,10 +68,11 @@ def test_create_issue_http_error() -> None:
 
 
 def test_create_issue_request_exception() -> None:
-    """Test that IssueCreator raises an IssueCreationError when a request exception occurs.
+    """Test request exception handling during issue creation.
 
-    Simulates a network error (requests.RequestException) and checks that the error
-    message includes the exception detail.
+    This test simulates a scenario where a network error (RequestException) occurs during
+    the HTTP request. It verifies that the IssueCreator.create() method raises an IssueCreationError
+    with the appropriate error message.
     """
     issue = Issue(title="Test", body="This is a test")
     creator = IssueCreator("fake_token", "fake_owner", "fake_repo")
@@ -64,10 +84,11 @@ def test_create_issue_request_exception() -> None:
 
 
 def test_create_issue_status_not_201() -> None:
-    """Test that IssueCreator raises an IssueCreationError if the response status code is not 201.
+    """Test unexpected status code handling during issue creation.
 
-    Simulates a response with status code 200 and checks that the correct error
-    is raised, including status code and response text.
+    This test simulates a scenario where the GitHub API returns a non-201 status code (e.g., 200 OK).
+    It verifies that the IssueCreator.create() method raises an IssueCreationError with
+    the correct status code and response text.
     """
     issue = Issue(title="Test", body="This is a test")
     creator = IssueCreator("fake_token", "fake_owner", "fake_repo")
@@ -75,7 +96,7 @@ def test_create_issue_status_not_201() -> None:
     mock_response = MagicMock()
     mock_response.status_code = 200
     mock_response.text = "OK"
-    mock_response.raise_for_status.return_value = None  # No exception raised
+    mock_response.raise_for_status.return_value = None
 
     with patch.object(creator._session, "post", return_value=mock_response):
         with pytest.raises(IssueCreationError) as exc_info:
@@ -83,23 +104,3 @@ def test_create_issue_status_not_201() -> None:
         assert "Failed to create issue." in str(exc_info.value)
         assert exc_info.value.status_code == 200
         assert "OK" in exc_info.value.response_text
-
-
-def test_create_issue_prints_success_url(capfd: pytest.CaptureFixture[str]) -> None:
-    """Test that IssueCreator prints the URL of the created issue on success.
-
-    Captures the standard output and checks that the success message with the correct
-    URL is printed.
-    """
-    issue = Issue(title="Test", body="This is a test")
-    creator = IssueCreator("fake_token", "fake_owner", "fake_repo")
-
-    mock_response = MagicMock()
-    mock_response.status_code = 201
-    mock_response.json.return_value = {"html_url": "https://github.com/fake_owner/fake_repo/issues/1"}
-
-    with patch.object(creator._session, "post", return_value=mock_response):
-        creator.create(issue)
-
-    out, _ = capfd.readouterr()
-    assert "Issue created successfully! URL: https://github.com/fake_owner/fake_repo/issues/1" in out
