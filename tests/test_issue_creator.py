@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 import requests
 
-from src.issue_creator import Issue, IssueCreationError, IssueCreator
+from src.github_issue_creator import Issue, IssueCreationError, IssueCreator
 
 
 def test_create_issue_success() -> None:
@@ -35,7 +35,7 @@ def test_create_issue_success() -> None:
 
         mock_post.assert_called_once()
         assert result.__class__.__name__ == "IssueResponse"
-        assert result.__class__.__module__ == "issue_creator.models.issue_response"
+        assert result.__class__.__module__ == "github_issue_creator.models.issue_response"
         assert result.issue_url == "https://github.com/fake_owner/fake_repo/issues/1"
         assert result.issue_id == 123456
         assert result.issue_title == "Test"

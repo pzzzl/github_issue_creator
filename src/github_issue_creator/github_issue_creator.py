@@ -2,9 +2,9 @@
 
 import requests
 
-from issue_creator.exceptions import IssueCreationError
-from issue_creator.models.issue import Issue
-from issue_creator.models.issue_response import IssueResponse
+from github_issue_creator.exceptions import IssueCreationError
+from github_issue_creator.models.issue import Issue
+from github_issue_creator.models.issue_response import IssueResponse
 
 
 class IssueCreator:
