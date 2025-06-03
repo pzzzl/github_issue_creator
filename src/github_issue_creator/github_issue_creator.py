@@ -10,13 +10,17 @@ from github_issue_creator.models.issue_response import IssueResponse
 class IssueCreator:
     """A class to create GitHub issues using the GitHub REST API."""
 
-    def __init__(self, token: str, repo_owner: str, repo_name: str):
+    def __init__(self, token: str, repo_owner: str, repo_name: str, proxy: dict = None) -> None:
         """Initializes the IssueCreator instance.
 
         Args:
             token (str): GitHub personal access token.
             repo_owner (str): Repository owner's username.
             repo_name (str): Name of the repository.
+            proxy (dict, optional): Proxy settings for the HTTP session. Defaults to None.
+        Raises:
+            ValueError: If token, repo_owner, or repo_name is not provided.
+            ValueError: If proxy is not a dictionary.
         """
         if not token:
             raise ValueError("GitHub token is required.")
@@ -28,8 +32,17 @@ class IssueCreator:
         self._token = token
         self._repo_owner = repo_owner
         self._repo_name = repo_name
+        self._proxy = proxy
 
-        self._session = requests.Session()
+        if self._proxy:
+            if self._proxy and not isinstance(self._proxy, dict):
+                raise ValueError("Proxy must be a dictionary")
+
+            self._session = requests.Session()
+            self._session.proxies.update(self._proxy)
+        else:
+             self._session = requests.Session()
+
         self._session.headers.update(
             {"Authorization": f"token {self._token}", "Accept": "application/vnd.github.v3+json"}
         )

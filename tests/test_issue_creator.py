@@ -104,3 +104,50 @@ def test_create_issue_status_not_201() -> None:
         assert "Failed to create issue." in str(exc_info.value)
         assert exc_info.value.status_code == 200
         assert "OK" in exc_info.value.response_text
+
+
+def test_create_issue_success_with_proxy() -> None:
+    """Test successful creation of an issue with a proxy.
+
+    This test verifies that when a valid Issue object is passed to the IssueCreator,
+    and a mock 201 response is returned from the GitHub API, the IssueCreator.create()
+    method returns an IssueResponse object with the correct data, even when using a proxy.
+    """
+    proxy = {"http": "http://proxy.example.com", "https": "http://proxy.example.com"}
+
+    issue = Issue(title="Test", body="This is a test")
+    creator = IssueCreator("fake_token", "fake_owner", "fake_repo", proxy=proxy)
+
+    mock_response = MagicMock()
+    mock_response.status_code = 201
+    mock_response.json.return_value = {
+        "id": 123456,
+        "number": 1,
+        "title": "Test",
+        "state": "open",
+        "created_at": "2024-06-01T00:00:00Z",
+        "html_url": "https://github.com/fake_owner/fake_repo/issues/1",
+        "user": {"login": "test_user"},
+    }
+
+    with patch.object(creator._session, "post", return_value=mock_response) as mock_post:
+        result = creator.create(issue)
+
+        mock_post.assert_called_once()
+        assert result.__class__.__name__ == "IssueResponse"
+        assert result.__class__.__module__ == "github_issue_creator.models.issue_response"
+        assert result.issue_url == "https://github.com/fake_owner/fake_repo/issues/1"
+        assert result.issue_id == 123456
+        assert result.issue_title == "Test"
+        assert result.issue_state == "open"
+        assert result.author == "test_user"
+        assert result.repository_url == "https://github.com/fake_owner/fake_repo"
+
+def test_create_issue_with_invalid_proxy() -> None:
+    """Test issue creation with an invalid proxy.
+
+    This test verifies that when an invalid proxy is provided, the IssueCreator.create()
+    method raises an IssueCreationError with the appropriate error message.
+    """
+    with pytest.raises(ValueError, match="Proxy must be a dictionary"):
+        IssueCreator("fake_token", "fake_owner", "fake_repo", proxy="invalid_proxy")
