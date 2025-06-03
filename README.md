@@ -1,8 +1,33 @@
-# Github Issue Creator
 
+<h1 align="center">GitHub Issue Creator</h1>
+
+<p align="center">
+<img src="https://img.shields.io/badge/version-0.2.0-blue">
+<img src="https://img.shields.io/badge/tests-passing-green">
+</p>
+
+<p align="center">
+<img src="https://user-images.githubusercontent.com/22751162/122999697-38f24280-d374-11eb-970b-f0156d026d88.png">
+</p>
+
+<p align="center">
 A Python library for creating GitHub issues programmatically using the GitHub REST API.
+</p>
 
-## 🚀 Installation
+## Summary
+
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Import the necessary modules](#import-the-necessary-modules)
+  - [Initialize IssueCreator](#initialize-issuecreator)
+  - [Create an Issue object](#create-an-issue-object)
+  - [Create the issue on GitHub](#create-the-issue-on-github)
+- [Exceptions](#Exceptions)
+- [Configuration Notes](#configuration-notes)
+- [Contributors](#contributors)
+
+
+## Installation
 
 First, install the library via pip (if it's not already installed):
 
@@ -10,15 +35,15 @@ First, install the library via pip (if it's not already installed):
 pip install github-issue-creator
 ```
 
-## 📚 Usage
+## Usage
 
-### 1️⃣ Import the necessary modules
+### Import the necessary modules
 
 ```Python
 from github_issue_creator import IssueCreator, Issue, IssueCreationError
 ```
 
-### 2️⃣ Initialize IssueCreator
+### Initialize IssueCreator
 
 You'll need a GitHub Personal Access Token (PAT), the repository owner's username, and the repository name.
 
@@ -30,7 +55,7 @@ repo_name = "your_repository_name"
 creator = IssueCreator(token, repo_owner, repo_name)
 ```
 
-### 3️⃣ Create an Issue object
+### Create an Issue object
 
 The `Issue` model should contain the issue details such as title, body, assignees, labels, etc.
 
@@ -43,7 +68,7 @@ issue = Issue(
 )
 ```
 
-### 4️⃣ Create the issue on GitHub
+### Create the issue on GitHub
 
 Call the `create` method to post the issue.
 
@@ -74,11 +99,20 @@ IssueResponse(
 )
 ```
 
-## ⚠️ Exceptions
+## Exceptions
 
 - `IssueCreationError`: Raised if the issue creation fails due to an HTTP error or a request exception.
 
-## 🛠 Configuration Notes
+## Configuration Notes
 
 - Make sure your GitHub token has the correct permissions to create issues in the repository.
 - The `Issue` model should be defined based on the GitHub API's expected fields (check the library's `models/issue.py` for the schema).
+
+## Contributors
+
+Thanks to the following people who have contributed to this project:
+
+- [pzzzl](https://github.com/pzzzl) - Maintainer
+- [BrunoSantanaS](https://github.com/BrunoSantanaS)
+
+Feel free to open a pull request or report any issues you encounter. Your contributions are always welcome!
