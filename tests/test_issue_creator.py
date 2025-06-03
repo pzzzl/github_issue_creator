@@ -143,6 +143,7 @@ def test_create_issue_success_with_proxy() -> None:
         assert result.author == "test_user"
         assert result.repository_url == "https://github.com/fake_owner/fake_repo"
 
+
 def test_create_issue_with_invalid_proxy() -> None:
     """Test issue creation with an invalid proxy.
 

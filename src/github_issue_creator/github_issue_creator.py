@@ -18,6 +18,7 @@ class IssueCreator:
             repo_owner (str): Repository owner's username.
             repo_name (str): Name of the repository.
             proxy (dict, optional): Proxy settings for the HTTP session. Defaults to None.
+
         Raises:
             ValueError: If token, repo_owner, or repo_name is not provided.
             ValueError: If proxy is not a dictionary.
@@ -41,7 +42,7 @@ class IssueCreator:
             self._session = requests.Session()
             self._session.proxies.update(self._proxy)
         else:
-             self._session = requests.Session()
+            self._session = requests.Session()
 
         self._session.headers.update(
             {"Authorization": f"token {self._token}", "Accept": "application/vnd.github.v3+json"}
