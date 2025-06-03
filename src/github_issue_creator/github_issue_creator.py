@@ -1,5 +1,7 @@
 """IssueCreator."""
 
+from typing import Any
+
 import requests
 
 from github_issue_creator.exceptions import IssueCreationError
@@ -10,14 +12,14 @@ from github_issue_creator.models.issue_response import IssueResponse
 class IssueCreator:
     """A class to create GitHub issues using the GitHub REST API."""
 
-    def __init__(self, token: str, repo_owner: str, repo_name: str, proxy: dict = None) -> None:
+    def __init__(self, token: str, repo_owner: str, repo_name: str, proxy: dict[str, str] = None) -> None:
         """Initializes the IssueCreator instance.
 
         Args:
             token (str): GitHub personal access token.
             repo_owner (str): Repository owner's username.
             repo_name (str): Name of the repository.
-            proxy (dict, optional): Proxy settings for the HTTP session. Defaults to None.
+            proxy (dict[str, str], optional): Proxy settings for the HTTP session. Defaults to None.
 
         Raises:
             ValueError: If token, repo_owner, or repo_name is not provided.
@@ -30,19 +32,19 @@ class IssueCreator:
         if not repo_name:
             raise ValueError("Repository name is required.")
 
-        self._token = token
-        self._repo_owner = repo_owner
-        self._repo_name = repo_name
-        self._proxy = proxy
+        self._token: str = token
+        self._repo_owner: str = repo_owner
+        self._repo_name: str = repo_name
+        self._proxy: dict[str, str] = proxy
 
         if self._proxy:
             if self._proxy and not isinstance(self._proxy, dict):
                 raise ValueError("Proxy must be a dictionary")
 
-            self._session = requests.Session()
+            self._session: requests.Session = requests.Session()
             self._session.proxies.update(self._proxy)
         else:
-            self._session = requests.Session()
+            self._session: requests.Session = requests.Session()
 
         self._session.headers.update(
             {"Authorization": f"token {self._token}", "Accept": "application/vnd.github.v3+json"}
@@ -61,8 +63,9 @@ class IssueCreator:
         Raises:
             IssueCreationError: If the issue creation fails.
         """
-        url = f"https://api.github.com/repos/{self._repo_owner}/{self._repo_name}/issues"
-        data = issue.model_dump()
+        url: str = f"https://api.github.com/repos/{self._repo_owner}/{self._repo_name}/issues"
+        data: dict[str, Any] = issue.model_dump()
+        response: requests.Response | None = None
 
         try:
             response = self._session.post(url, json=data, timeout=timeout)
@@ -81,7 +84,7 @@ class IssueCreator:
                 message="Failed to create issue.", status_code=response.status_code, response_text=response.text
             )
 
-        response_data = response.json()
+        response_data: Any = response.json()
 
         return IssueResponse(
             repository_url=f"https://github.com/{self._repo_owner}/{self._repo_name}",
